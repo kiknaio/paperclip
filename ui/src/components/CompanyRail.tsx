@@ -27,10 +27,10 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import type { Company } from "@paperclipai/shared";
+import type { Company } from "@yawnlessai/shared";
 import { CompanyPatternIcon } from "./CompanyPatternIcon";
 
-const ORDER_STORAGE_KEY = "paperclip.companyOrder";
+const ORDER_STORAGE_KEY = "yawnless.companyOrder";
 
 function getStoredOrder(): string[] {
   try {

@@ -1,4 +1,4 @@
-# @paperclipai/shared
+# @yawnlessai/shared
 
 ## 0.3.0
 

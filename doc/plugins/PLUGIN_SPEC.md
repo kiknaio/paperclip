@@ -1,8 +1,8 @@
-# Paperclip Plugin System Specification
+# Yawnless.ai Plugin System Specification
 
 Status: proposed complete spec for the post-V1 plugin system
 
-This document is the complete specification for Paperclip's plugin and extension architecture.
+This document is the complete specification for Yawnless.ai's plugin and extension architecture.
 It expands the brief plugin notes in [doc/SPEC.md](../SPEC.md) and should be read alongside the comparative analysis in [doc/plugins/ideas-from-opencode.md](./ideas-from-opencode.md).
 
 This is not part of the V1 implementation contract in [doc/SPEC-implementation.md](../SPEC-implementation.md).
@@ -39,12 +39,12 @@ This spec does not cover:
 
 ## 2. Core Assumptions
 
-Paperclip plugin design is based on the following assumptions:
+Yawnless.ai plugin design is based on the following assumptions:
 
-1. Paperclip is single-tenant and self-hosted.
+1. Yawnless.ai is single-tenant and self-hosted.
 2. Plugin installation is global to the instance.
-3. "Companies" remain core Paperclip business objects, but they are not plugin trust boundaries.
-4. Board governance, approval gates, budget hard-stops, and core task invariants remain owned by Paperclip core.
+3. "Companies" remain core Yawnless.ai business objects, but they are not plugin trust boundaries.
+4. Board governance, approval gates, budget hard-stops, and core task invariants remain owned by Yawnless.ai core.
 5. Projects already have a real workspace model via `project_workspaces`, and local/runtime plugins should build on that instead of inventing a separate workspace abstraction.
 
 ## 3. Goals
@@ -52,7 +52,7 @@ Paperclip plugin design is based on the following assumptions:
 The plugin system must:
 
 1. Let operators install global instance-wide plugins.
-2. Let plugins add major capabilities without editing Paperclip core.
+2. Let plugins add major capabilities without editing Yawnless.ai core.
 3. Keep core governance and auditing intact.
 4. Support both local/runtime plugins and external SaaS connectors.
 5. Support future plugin categories such as:
@@ -72,18 +72,18 @@ The first plugin system must not:
 1. Allow arbitrary plugins to override core routes or core invariants.
 2. Allow arbitrary plugins to mutate approval, auth, issue checkout, or budget enforcement logic.
 3. Allow arbitrary third-party plugins to run free-form DB migrations.
-4. Depend on project-local plugin folders such as `.paperclip/plugins`.
+4. Depend on project-local plugin folders such as `.yawnless/plugins`.
 5. Depend on automatic install-and-execute behavior at server startup from arbitrary config files.
 
 ## 5. Terminology
 
 ### 5.1 Instance
 
-The single Paperclip deployment an operator installs and controls.
+The single Yawnless.ai deployment an operator installs and controls.
 
 ### 5.2 Company
 
-A first-class Paperclip business object inside the instance.
+A first-class Yawnless.ai business object inside the instance.
 
 ### 5.3 Project Workspace
 
@@ -92,7 +92,7 @@ Plugins resolve workspace paths from this model to locate local directories for 
 
 ### 5.4 Platform Module
 
-A trusted in-process extension loaded directly by Paperclip core.
+A trusted in-process extension loaded directly by Yawnless.ai core.
 
 Examples:
 
@@ -103,7 +103,7 @@ Examples:
 
 ### 5.5 Plugin
 
-An installable instance-wide extension package loaded through the Paperclip plugin runtime.
+An installable instance-wide extension package loaded through the Yawnless.ai plugin runtime.
 
 Examples:
 
@@ -127,7 +127,7 @@ Plugins may only call host APIs that are covered by granted capabilities.
 
 ## 6. Extension Classes
 
-Paperclip has two extension classes.
+Yawnless.ai has two extension classes.
 
 ## 6.1 Platform Modules
 
@@ -175,7 +175,7 @@ A plugin may declare more than one category.
 
 ## 7. Project Workspaces
 
-Paperclip already has a concrete workspace model:
+Yawnless.ai already has a concrete workspace model:
 
 - projects expose `workspaces`
 - projects expose `primaryWorkspace`
@@ -201,26 +201,26 @@ Examples:
 
 ## 8.1 On-Disk Layout
 
-Plugins live under the Paperclip instance directory.
+Plugins live under the Yawnless.ai instance directory.
 
 Suggested layout:
 
-- `~/.paperclip/instances/default/plugins/package.json`
-- `~/.paperclip/instances/default/plugins/node_modules/`
-- `~/.paperclip/instances/default/plugins/.cache/`
-- `~/.paperclip/instances/default/data/plugins/<plugin-id>/`
+- `~/.yawnless/instances/default/plugins/package.json`
+- `~/.yawnless/instances/default/plugins/node_modules/`
+- `~/.yawnless/instances/default/plugins/.cache/`
+- `~/.yawnless/instances/default/data/plugins/<plugin-id>/`
 
 The package install directory and the plugin data directory are separate.
 
 ## 8.2 Operator Commands
 
-Paperclip should add CLI commands:
+Yawnless.ai should add CLI commands:
 
-- `pnpm paperclipai plugin list`
-- `pnpm paperclipai plugin install <package[@version]>`
-- `pnpm paperclipai plugin uninstall <plugin-id>`
-- `pnpm paperclipai plugin upgrade <plugin-id> [version]`
-- `pnpm paperclipai plugin doctor <plugin-id>`
+- `pnpm yawnlessai plugin list`
+- `pnpm yawnlessai plugin install <package[@version]>`
+- `pnpm yawnlessai plugin uninstall <plugin-id>`
+- `pnpm yawnlessai plugin upgrade <plugin-id> [version]`
+- `pnpm yawnlessai plugin doctor <plugin-id>`
 
 These commands are instance-level operations.
 
@@ -251,7 +251,7 @@ Rules:
 
 - plugin contributions are additive by default
 - plugins may not override core routes or core actions by name collision
-- UI slot IDs are automatically namespaced by plugin ID (e.g. `@paperclip/plugin-linear:sync-health-widget`), so cross-plugin collisions are structurally impossible
+- UI slot IDs are automatically namespaced by plugin ID (e.g. `@yawnless/plugin-linear:sync-health-widget`), so cross-plugin collisions are structurally impossible
 - if a single plugin declares duplicate slot IDs within its own manifest, the host must reject at install time
 
 ## 10. Package Contract
@@ -268,7 +268,7 @@ Suggested `package.json` keys:
 
 ```json
 {
-  "name": "@paperclip/plugin-linear",
+  "name": "@yawnless/plugin-linear",
   "version": "0.1.0",
   "paperclipPlugin": {
     "manifest": "./dist/manifest.js",
@@ -331,7 +331,7 @@ Rules:
 
 ## 11. Agent Tools
 
-Plugins may contribute tools that Paperclip agents can use during runs.
+Plugins may contribute tools that Yawnless.ai agents can use during runs.
 
 ### 11.1 Tool Declaration
 
@@ -377,7 +377,7 @@ Third-party plugins run out-of-process by default.
 
 Default runtime:
 
-- Paperclip server starts one worker process per installed plugin
+- Yawnless.ai server starts one worker process per installed plugin
 - the worker process is a Node process
 - host and worker communicate over JSON-RPC on stdio
 
@@ -499,7 +499,7 @@ If the worker implements this method, it applies the new config without restarti
 
 ### 13.5 `onEvent`
 
-Receives one typed Paperclip domain event.
+Receives one typed Yawnless.ai domain event.
 
 Delivery semantics:
 
@@ -785,7 +785,7 @@ Plugins may emit custom events using `ctx.events.emit(name, payload)`. Plugin-em
 Other plugins may subscribe to these events using the same `ctx.events.on()` API:
 
 ```ts
-ctx.events.on("plugin.@paperclip/plugin-git.push-detected", async (event) => {
+ctx.events.on("plugin.@yawnless/plugin-git.push-detected", async (event) => {
   // react to the git plugin detecting a push
 });
 ```
@@ -846,7 +846,7 @@ The plugin's UI bundle exports:
 
 ```tsx
 // dist/ui/index.tsx
-import { usePluginData, usePluginAction, MetricCard, StatusBadge } from "@paperclipai/plugin-sdk/ui";
+import { usePluginData, usePluginAction, MetricCard, StatusBadge } from "@yawnlessai/plugin-sdk/ui";
 
 export function DashboardWidget({ context }: PluginWidgetProps) {
   const { data, loading } = usePluginData("sync-health", { companyId: context.companyId });
@@ -878,7 +878,7 @@ export function DashboardWidget({ context }: PluginWidgetProps) {
 - The host decides **where** plugin components appear (which slots exist and when they mount).
 - The host provides the **bridge** — plugin UI cannot make arbitrary network requests or access host internals directly.
 - The host enforces **capability gates** — if a plugin's worker does not have a capability, the bridge rejects the call even if the UI requests it.
-- The host provides **design tokens and shared components** via `@paperclipai/plugin-sdk/ui` so plugins can match the host's visual language without being forced to.
+- The host provides **design tokens and shared components** via `@yawnlessai/plugin-sdk/ui` so plugins can match the host's visual language without being forced to.
 
 **What the plugin controls:**
 
@@ -886,7 +886,7 @@ export function DashboardWidget({ context }: PluginWidgetProps) {
 - The plugin decides **what data** to fetch and **what actions** to expose.
 - The plugin can use any React patterns (hooks, context, third-party component libraries) inside its bundle.
 
-### 19.0.1 Plugin UI SDK (`@paperclipai/plugin-sdk/ui`)
+### 19.0.1 Plugin UI SDK (`@yawnlessai/plugin-sdk/ui`)
 
 The SDK includes a `ui` subpath export that plugin frontends import. This subpath provides:
 
@@ -903,7 +903,7 @@ Plugin UI bundles are loaded as standard ES modules, not iframed. This gives plu
 
 Isolation rules:
 
-- Plugin bundles must not import from host internals. They may only import from `@paperclipai/plugin-sdk/ui` and their own dependencies.
+- Plugin bundles must not import from host internals. They may only import from `@yawnlessai/plugin-sdk/ui` and their own dependencies.
 - Plugin bundles must not access `window.fetch` or `XMLHttpRequest` directly for host API calls. All host communication goes through the bridge.
 - The host may enforce Content Security Policy rules that restrict plugin network access to the bridge endpoint only.
 - Plugin bundles must be statically analyzable — no dynamic `import()` of URLs outside the plugin's own bundle.
@@ -960,7 +960,7 @@ Plugins may add sidebar links to:
 - global plugin settings
 - company-context plugin pages
 
-## 19.6 Shared Components In `@paperclipai/plugin-sdk/ui`
+## 19.6 Shared Components In `@yawnlessai/plugin-sdk/ui`
 
 The host SDK ships shared components that plugins can import to quickly build UIs that match the host's look and feel. These are convenience building blocks, not a requirement.
 
@@ -1014,7 +1014,7 @@ Error codes:
 - `TIMEOUT` — the worker did not respond within the configured timeout
 - `UNKNOWN` — unexpected bridge-level failure
 
-The `@paperclipai/plugin-sdk/ui` subpath should also export an `ErrorBoundary` component that plugin authors can use to catch rendering errors without crashing the host page.
+The `@yawnlessai/plugin-sdk/ui` subpath should also export an `ErrorBoundary` component that plugin authors can use to catch rendering errors without crashing the host page.
 
 ## 19.8 Plugin Settings UI
 
@@ -1025,7 +1025,7 @@ The auto-generated form supports:
 - text inputs, number inputs, toggles, select dropdowns derived from schema types and enums
 - nested objects rendered as fieldsets
 - arrays rendered as repeatable field groups with add/remove controls
-- secret ref fields: any schema property annotated with `"format": "secret-ref"` renders as a secret picker that resolves through the Paperclip secret provider system rather than a plain text input
+- secret ref fields: any schema property annotated with `"format": "secret-ref"` renders as a secret picker that resolves through the Yawnless.ai secret provider system rather than a plain text input
 - validation messages derived from schema constraints (`required`, `minLength`, `pattern`, `minimum`, etc.)
 - a "Test Connection" action if the plugin declares a `validateConfig` RPC method — the host calls it and displays the result inline
 
@@ -1045,19 +1045,19 @@ This keeps the host lean — it does not need to maintain a parallel API surface
 
 ## 21.1 Database Principles
 
-1. Core Paperclip data stays in first-party tables.
+1. Core Yawnless.ai data stays in first-party tables.
 2. Most plugin-owned data starts in generic extension tables.
-3. Plugin data should scope to existing Paperclip objects before new tables are introduced.
+3. Plugin data should scope to existing Yawnless.ai objects before new tables are introduced.
 4. Arbitrary third-party schema migrations are out of scope for the first plugin system.
 
 ## 21.2 Core Table Reuse
 
-If data becomes part of the actual Paperclip product model, it should become a first-party table.
+If data becomes part of the actual Yawnless.ai product model, it should become a first-party table.
 
 Examples:
 
 - `project_workspaces` is already first-party
-- if Paperclip later decides git state is core product data, it should become a first-party table too
+- if Yawnless.ai later decides git state is core product data, it should become a first-party table too
 
 ## 21.3 Required Tables
 
@@ -1225,7 +1225,7 @@ Plugin config must never persist raw secret values.
 Rules:
 
 1. Plugin config stores secret refs only.
-2. Secret refs resolve through the existing Paperclip secret provider system.
+2. Secret refs resolve through the existing Yawnless.ai secret provider system.
 3. Plugin workers receive resolved secrets only at execution time.
 4. Secret values must never be written to:
    - plugin config JSON
@@ -1291,7 +1291,7 @@ When a plugin is uninstalled, the host must handle plugin-owned data explicitly.
 3. Plugin-owned data (`plugin_state`, `plugin_entities`, `plugin_jobs`, `plugin_job_runs`, `plugin_webhook_deliveries`, `plugin_config`) is retained for a configurable grace period (default: 30 days).
 4. During the grace period, the operator can reinstall the same plugin and recover its state.
 5. After the grace period, the host purges all plugin-owned data for the uninstalled plugin.
-6. The operator may force-purge immediately via CLI: `pnpm paperclipai plugin purge <plugin-id>`.
+6. The operator may force-purge immediately via CLI: `pnpm yawnlessai plugin purge <plugin-id>`.
 
 ### 25.2 Upgrade Data Considerations
 
@@ -1313,7 +1313,7 @@ When upgrading a plugin:
 
 ### 25.4 Hot Plugin Lifecycle
 
-Plugin install, uninstall, upgrade, and config changes **must** take effect without restarting the Paperclip server. This is a normative requirement, not optional.
+Plugin install, uninstall, upgrade, and config changes **must** take effect without restarting the Yawnless.ai server. This is a normative requirement, not optional.
 
 The architecture already supports this — plugins run as out-of-process workers with dynamic ESM imports, IPC bridges, and host-managed routing tables. This section makes the requirement explicit so implementations do not regress.
 
@@ -1414,7 +1414,7 @@ These events can be consumed by other plugins (e.g. a notification plugin) or su
 
 ## 27. Plugin Development And Testing
 
-### 27.1 `@paperclipai/plugin-test-harness`
+### 27.1 `@yawnlessai/plugin-test-harness`
 
 The host should publish a test harness package that plugin authors use for local development and testing.
 
@@ -1431,7 +1431,7 @@ The test harness provides:
 Example usage:
 
 ```ts
-import { createTestHarness } from "@paperclipai/plugin-test-harness";
+import { createTestHarness } from "@yawnlessai/plugin-test-harness";
 import manifest from "../dist/manifest.js";
 import { register } from "../dist/worker.js";
 
@@ -1452,16 +1452,16 @@ expect(data.syncedCount).toBeGreaterThan(0);
 
 ### 27.2 Local Plugin Development
 
-For developing a plugin against a running Paperclip instance:
+For developing a plugin against a running Yawnless.ai instance:
 
-- The operator installs the plugin from a local path: `pnpm paperclipai plugin install ./path/to/plugin`
+- The operator installs the plugin from a local path: `pnpm yawnlessai plugin install ./path/to/plugin`
 - The host watches the plugin directory for changes and restarts the worker on rebuild.
 - `devUiUrl` in plugin config can point to a local Vite dev server for UI hot-reload.
 - The plugin settings page shows real-time logs from the worker for debugging.
 
 ### 27.3 Plugin Starter Template
 
-The host should publish a starter template (`create-paperclip-plugin`) that scaffolds:
+The host should publish a starter template (`create-yawnless-plugin`) that scaffolds:
 
 - `package.json` with correct `paperclipPlugin` keys
 - manifest with placeholder values
@@ -1475,14 +1475,14 @@ The host should publish a starter template (`create-paperclip-plugin`) that scaf
 
 This spec directly supports the following plugin types:
 
-- `@paperclip/plugin-workspace-files`
-- `@paperclip/plugin-terminal`
-- `@paperclip/plugin-git`
-- `@paperclip/plugin-linear`
-- `@paperclip/plugin-github-issues`
-- `@paperclip/plugin-grafana`
-- `@paperclip/plugin-runtime-processes`
-- `@paperclip/plugin-stripe`
+- `@yawnless/plugin-workspace-files`
+- `@yawnless/plugin-terminal`
+- `@yawnless/plugin-git`
+- `@yawnless/plugin-linear`
+- `@yawnless/plugin-github-issues`
+- `@yawnless/plugin-grafana`
+- `@yawnless/plugin-runtime-processes`
+- `@yawnless/plugin-stripe`
 
 ## 29. Compatibility And Versioning
 
@@ -1498,19 +1498,19 @@ This spec directly supports the following plugin types:
 
 The host publishes a single SDK package for plugin authors:
 
-- `@paperclipai/plugin-sdk` — the complete plugin SDK
+- `@yawnlessai/plugin-sdk` — the complete plugin SDK
 
 The package uses subpath exports to separate worker and UI concerns:
 
-- `@paperclipai/plugin-sdk` — worker-side SDK (context, events, state, tools, logger, `definePlugin`, `z`)
-- `@paperclipai/plugin-sdk/ui` — frontend SDK (bridge hooks, shared components, design tokens)
+- `@yawnlessai/plugin-sdk` — worker-side SDK (context, events, state, tools, logger, `definePlugin`, `z`)
+- `@yawnlessai/plugin-sdk/ui` — frontend SDK (bridge hooks, shared components, design tokens)
 
 A single package simplifies dependency management for plugin authors — one dependency, one version, one changelog. The subpath exports keep bundle separation clean: worker code imports from the root, UI code imports from `/ui`. Build tools tree-shake accordingly so the worker bundle does not include React components and the UI bundle does not include worker-only code.
 
 Versioning rules:
 
 1. **Semver**: The SDK follows strict semantic versioning. Major version bumps indicate breaking changes to either the worker or UI surface; minor versions add new features backwards-compatibly; patch versions are bug fixes only.
-2. **Tied to API version**: Each major SDK version corresponds to exactly one plugin `apiVersion`. When `@paperclipai/plugin-sdk@2.x` ships, it targets `apiVersion: 2`. Plugins built with SDK 1.x continue to declare `apiVersion: 1`.
+2. **Tied to API version**: Each major SDK version corresponds to exactly one plugin `apiVersion`. When `@yawnlessai/plugin-sdk@2.x` ships, it targets `apiVersion: 2`. Plugins built with SDK 1.x continue to declare `apiVersion: 1`.
 3. **Host multi-version support**: The host must support at least the current and one previous `apiVersion` simultaneously. This means plugins built against the previous SDK major version continue to work without modification. The host maintains separate IPC protocol handlers for each supported API version.
 4. **Minimum SDK version in manifest**: Plugins declare `sdkVersion` in the manifest as a semver range (e.g. `">=1.4.0 <2.0.0"`). The host validates this at install time and warns if the plugin's declared range is outside the host's supported SDK versions.
 5. **Deprecation timeline**: When a new `apiVersion` ships, the previous version enters a deprecation period of at least 6 months. During this period:
@@ -1537,7 +1537,7 @@ This matrix is published in the host docs and queryable via `GET /api/plugins/co
 
 When a new SDK version is released:
 
-1. Plugin author updates `@paperclipai/plugin-sdk` dependency.
+1. Plugin author updates `@yawnlessai/plugin-sdk` dependency.
 2. Plugin author follows the migration guide to update code.
 3. Plugin author updates `apiVersion` and `sdkVersion` in the manifest.
 4. Plugin author publishes a new plugin version.
@@ -1557,7 +1557,7 @@ When a new SDK version is released:
 - jobs
 - webhooks
 - settings page
-- plugin UI bundle loading, host bridge, and `@paperclipai/plugin-sdk/ui`
+- plugin UI bundle loading, host bridge, and `@yawnlessai/plugin-sdk/ui`
 - extension slot mounting for pages, tabs, widgets, sidebar entries
 - bridge error propagation (`PluginBridgeError`)
 - auto-generated settings form from `instanceConfigSchema`
@@ -1566,8 +1566,8 @@ When a new SDK version is released:
 - event filtering
 - graceful shutdown with configurable deadlines
 - plugin logging and health dashboard
-- `@paperclipai/plugin-test-harness`
-- `create-paperclip-plugin` starter template
+- `@yawnlessai/plugin-test-harness`
+- `create-yawnless-plugin` starter template
 - uninstall with data retention grace period
 - hot plugin lifecycle (install, uninstall, upgrade, config change without server restart)
 - SDK versioning with multi-version host support and deprecation policy
@@ -1595,9 +1595,9 @@ Workspace plugins (file browser, terminal, git, process tracking) do not require
 
 ## 31. Final Design Decision
 
-Paperclip should not implement a generic in-process hook bag modeled directly after local coding tools.
+Yawnless.ai should not implement a generic in-process hook bag modeled directly after local coding tools.
 
-Paperclip should implement:
+Yawnless.ai should implement:
 
 - trusted platform modules for low-level host integration
 - globally installed out-of-process plugins for additive instance-wide capabilities
@@ -1614,4 +1614,4 @@ Paperclip should implement:
 - test harness and starter template for low authoring friction
 - strict preservation of core governance and audit rules
 
-That is the complete target design for the Paperclip plugin system.
+That is the complete target design for the Yawnless.ai plugin system.

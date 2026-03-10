@@ -15,7 +15,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import type { Agent } from "@paperclipai/shared";
+import type { Agent } from "@yawnlessai/shared";
 
 /** BFS sort: roots first (no reportsTo), then their direct reports, etc. */
 function sortByHierarchy(agents: Agent[]): Agent[] {
@@ -83,11 +83,11 @@ export function SidebarAgents() {
           <CollapsibleTrigger className="flex items-center gap-1 flex-1 min-w-0">
             <ChevronRight
               className={cn(
-                "h-3 w-3 text-muted-foreground/60 transition-transform opacity-0 group-hover:opacity-100",
+                "h-3 w-3 text-muted-foreground/75 transition-transform opacity-0 group-hover:opacity-100",
                 open && "rotate-90"
               )}
             />
-            <span className="text-[10px] font-medium uppercase tracking-widest font-mono text-muted-foreground/60">
+            <span className="text-xs font-medium text-muted-foreground/75">
               Agents
             </span>
           </CollapsibleTrigger>
@@ -127,10 +127,10 @@ export function SidebarAgents() {
                 {runCount > 0 && (
                   <span className="ml-auto flex items-center gap-1.5 shrink-0">
                     <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500/80" />
+                      <span className="relative inline-flex h-2 w-2 animate-pulse rounded-full bg-green-500" />
                     </span>
-                    <span className="text-[11px] font-medium text-blue-600 dark:text-blue-400">
+                    <span className="text-[11px] font-medium text-green-600 dark:text-green-400">
                       {runCount} live
                     </span>
                   </span>

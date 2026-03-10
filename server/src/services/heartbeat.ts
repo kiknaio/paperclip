@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { and, asc, desc, eq, gt, inArray, sql } from "drizzle-orm";
-import type { Db } from "@paperclipai/db";
+import type { Db } from "@yawnlessai/db";
 import {
   agents,
   agentRuntimeState,
@@ -12,7 +12,7 @@ import {
   costEvents,
   issues,
   projectWorkspaces,
-} from "@paperclipai/db";
+} from "@yawnlessai/db";
 import { conflict, notFound } from "../errors.js";
 import { logger } from "../middleware/logger.js";
 import { publishLiveEvent } from "./live-events.js";
@@ -1233,7 +1233,7 @@ export function heartbeatService(db: Db) {
         });
       };
       for (const warning of runtimeWorkspaceWarnings) {
-        await onLog("stderr", `[paperclip] ${warning}\n`);
+        await onLog("stderr", `[yawnless] ${warning}\n`);
       }
 
       const config = parseObject(agent.adapterConfig);
@@ -1271,7 +1271,7 @@ export function heartbeatService(db: Db) {
             runId: run.id,
             adapterType: agent.adapterType,
           },
-          "local agent jwt secret missing or invalid; running without injected PAPERCLIP_API_KEY",
+          "local agent jwt secret missing or invalid; running without injected YAWNLESS_API_KEY",
         );
       }
       const adapterResult = await adapter.execute({

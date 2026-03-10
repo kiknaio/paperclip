@@ -5,32 +5,32 @@ summary: Onboard, run, doctor, and configure
 
 Instance setup and diagnostics commands.
 
-## `paperclipai run`
+## `yawnlessai run`
 
 One-command bootstrap and start:
 
 ```sh
-pnpm paperclipai run
+pnpm yawnlessai run
 ```
 
 Does:
 
 1. Auto-onboards if config is missing
-2. Runs `paperclipai doctor` with repair enabled
+2. Runs `yawnlessai doctor` with repair enabled
 3. Starts the server when checks pass
 
 Choose a specific instance:
 
 ```sh
-pnpm paperclipai run --instance dev
+pnpm yawnlessai run --instance dev
 ```
 
-## `paperclipai onboard`
+## `yawnlessai onboard`
 
 Interactive first-time setup:
 
 ```sh
-pnpm paperclipai onboard
+pnpm yawnlessai onboard
 ```
 
 First prompt:
@@ -41,22 +41,22 @@ First prompt:
 Start immediately after onboarding:
 
 ```sh
-pnpm paperclipai onboard --run
+pnpm yawnlessai onboard --run
 ```
 
 Non-interactive defaults + immediate start (opens browser on server listen):
 
 ```sh
-pnpm paperclipai onboard --yes
+pnpm yawnlessai onboard --yes
 ```
 
-## `paperclipai doctor`
+## `yawnlessai doctor`
 
 Health checks with optional auto-repair:
 
 ```sh
-pnpm paperclipai doctor
-pnpm paperclipai doctor --repair
+pnpm yawnlessai doctor
+pnpm yawnlessai doctor --repair
 ```
 
 Validates:
@@ -67,51 +67,51 @@ Validates:
 - Storage configuration
 - Missing key files
 
-## `paperclipai configure`
+## `yawnlessai configure`
 
 Update configuration sections:
 
 ```sh
-pnpm paperclipai configure --section server
-pnpm paperclipai configure --section secrets
-pnpm paperclipai configure --section storage
+pnpm yawnlessai configure --section server
+pnpm yawnlessai configure --section secrets
+pnpm yawnlessai configure --section storage
 ```
 
-## `paperclipai env`
+## `yawnlessai env`
 
 Show resolved environment configuration:
 
 ```sh
-pnpm paperclipai env
+pnpm yawnlessai env
 ```
 
-## `paperclipai allowed-hostname`
+## `yawnlessai allowed-hostname`
 
 Allow a private hostname for authenticated/private mode:
 
 ```sh
-pnpm paperclipai allowed-hostname my-tailscale-host
+pnpm yawnlessai allowed-hostname my-tailscale-host
 ```
 
 ## Local Storage Paths
 
 | Data | Default Path |
 |------|-------------|
-| Config | `~/.paperclip/instances/default/config.json` |
-| Database | `~/.paperclip/instances/default/db` |
-| Logs | `~/.paperclip/instances/default/logs` |
-| Storage | `~/.paperclip/instances/default/data/storage` |
-| Secrets key | `~/.paperclip/instances/default/secrets/master.key` |
+| Config | `~/.yawnless/instances/default/config.json` |
+| Database | `~/.yawnless/instances/default/db` |
+| Logs | `~/.yawnless/instances/default/logs` |
+| Storage | `~/.yawnless/instances/default/data/storage` |
+| Secrets key | `~/.yawnless/instances/default/secrets/master.key` |
 
 Override with:
 
 ```sh
-PAPERCLIP_HOME=/custom/home PAPERCLIP_INSTANCE_ID=dev pnpm paperclipai run
+YAWNLESS_HOME=/custom/home YAWNLESS_INSTANCE_ID=dev pnpm yawnlessai run
 ```
 
 Or pass `--data-dir` directly on any command:
 
 ```sh
-pnpm paperclipai run --data-dir ./tmp/paperclip-dev
-pnpm paperclipai doctor --data-dir ./tmp/paperclip-dev
+pnpm yawnlessai run --data-dir ./tmp/yawnless-dev
+pnpm yawnlessai doctor --data-dir ./tmp/yawnless-dev
 ```

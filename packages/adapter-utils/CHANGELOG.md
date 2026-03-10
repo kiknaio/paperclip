@@ -1,4 +1,4 @@
-# @paperclipai/adapter-utils
+# @yawnlessai/adapter-utils
 
 ## 0.3.0
 

@@ -57,7 +57,7 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AgentIcon, AgentIconPicker } from "../components/AgentIconPicker";
-import { isUuidLike, type Agent, type HeartbeatRun, type HeartbeatRunEvent, type AgentRuntimeState, type LiveEvent } from "@paperclipai/shared";
+import { isUuidLike, type Agent, type HeartbeatRun, type HeartbeatRunEvent, type AgentRuntimeState, type LiveEvent } from "@yawnlessai/shared";
 import { agentRouteRef } from "../lib/utils";
 
 const runStatusIcons: Record<string, { icon: typeof CheckCircle2; color: string }> = {
@@ -457,6 +457,7 @@ export function AgentDetail() {
           <Button
             variant="outline"
             size="sm"
+            className="cursor-pointer"
             onClick={() => openNewIssue({ assigneeAgentId: agent.id })}
           >
             <Plus className="h-3.5 w-3.5 sm:mr-1" />
@@ -465,6 +466,7 @@ export function AgentDetail() {
           <Button
             variant="outline"
             size="sm"
+            className="cursor-pointer"
             onClick={() => agentAction.mutate("invoke")}
             disabled={agentAction.isPending || isPendingApproval}
           >
@@ -475,6 +477,7 @@ export function AgentDetail() {
             <Button
               variant="outline"
               size="sm"
+              className="cursor-pointer"
               onClick={() => agentAction.mutate("resume")}
               disabled={agentAction.isPending || isPendingApproval}
             >
@@ -485,6 +488,7 @@ export function AgentDetail() {
             <Button
               variant="outline"
               size="sm"
+              className="cursor-pointer"
               onClick={() => agentAction.mutate("pause")}
               disabled={agentAction.isPending || isPendingApproval}
             >
@@ -492,7 +496,6 @@ export function AgentDetail() {
               <span className="hidden sm:inline">Pause</span>
             </Button>
           )}
-          <span className="hidden sm:inline"><StatusBadge status={agent.status} /></span>
           {mobileLiveRun && (
             <Link
               to={`/agents/${canonicalAgentRef}/runs/${mobileLiveRun.id}`}
@@ -509,7 +512,7 @@ export function AgentDetail() {
           {/* Overflow menu */}
           <Popover open={moreOpen} onOpenChange={setMoreOpen}>
             <PopoverTrigger asChild>
-              <Button variant="ghost" size="icon-xs">
+              <Button variant="ghost" size="icon-xs" className="cursor-pointer">
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </PopoverTrigger>
@@ -2511,7 +2514,7 @@ function KeysTab({ agentId, companyId }: { agentId: string; companyId?: string }
           Create API Key
         </h3>
         <p className="text-xs text-muted-foreground">
-          API keys allow this agent to authenticate calls to the Paperclip server.
+          API keys allow this agent to authenticate calls to the Yawnless.ai server.
         </p>
         <div className="flex items-center gap-2">
           <Input

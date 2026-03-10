@@ -6,7 +6,7 @@ import type { PaperclipConfig } from "../config/schema.js";
 import { addAllowedHostname } from "../commands/allowed-hostname.js";
 
 function createTempConfigPath() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "paperclip-allowed-hostname-"));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "yawnless-allowed-hostname-"));
   return path.join(dir, "config.json");
 }
 
@@ -19,18 +19,18 @@ function writeBaseConfig(configPath: string) {
     },
     database: {
       mode: "embedded-postgres",
-      embeddedPostgresDataDir: "/tmp/paperclip-db",
+      embeddedPostgresDataDir: "/tmp/yawnless-db",
       embeddedPostgresPort: 54329,
       backup: {
         enabled: true,
         intervalMinutes: 60,
         retentionDays: 30,
-        dir: "/tmp/paperclip-backups",
+        dir: "/tmp/yawnless-backups",
       },
     },
     logging: {
       mode: "file",
-      logDir: "/tmp/paperclip-logs",
+      logDir: "/tmp/yawnless-logs",
     },
     server: {
       deploymentMode: "authenticated",
@@ -46,9 +46,9 @@ function writeBaseConfig(configPath: string) {
     },
     storage: {
       provider: "local_disk",
-      localDisk: { baseDir: "/tmp/paperclip-storage" },
+      localDisk: { baseDir: "/tmp/yawnless-storage" },
       s3: {
-        bucket: "paperclip",
+        bucket: "yawnless",
         region: "us-east-1",
         prefix: "",
         forcePathStyle: false,
@@ -57,7 +57,7 @@ function writeBaseConfig(configPath: string) {
     secrets: {
       provider: "local_encrypted",
       strictMode: false,
-      localEncrypted: { keyFilePath: "/tmp/paperclip-secrets/master.key" },
+      localEncrypted: { keyFilePath: "/tmp/yawnless-secrets/master.key" },
     },
   };
   fs.writeFileSync(configPath, JSON.stringify(base, null, 2));

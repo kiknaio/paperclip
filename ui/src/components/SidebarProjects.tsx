@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { NavLink, useLocation } from "@/lib/router";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, Plus } from "lucide-react";
+import { ChevronRight, Folder, Plus } from "lucide-react";
 import {
   DndContext,
   PointerSensor,
@@ -25,7 +25,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import type { Project } from "@paperclipai/shared";
+import type { Project } from "@yawnlessai/shared";
 
 function SortableProjectItem({
   activeProjectRef,
@@ -73,10 +73,7 @@ function SortableProjectItem({
             : "text-foreground/80 hover:bg-accent/50 hover:text-foreground",
         )}
       >
-        <span
-          className="shrink-0 h-3.5 w-3.5 rounded-sm"
-          style={{ backgroundColor: project.color ?? "#6366f1" }}
-        />
+        <Folder className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
         <span className="flex-1 truncate">{project.name}</span>
       </NavLink>
     </div>
@@ -142,11 +139,11 @@ export function SidebarProjects() {
           <CollapsibleTrigger className="flex items-center gap-1 flex-1 min-w-0">
             <ChevronRight
               className={cn(
-                "h-3 w-3 text-muted-foreground/60 transition-transform opacity-0 group-hover:opacity-100",
+                "h-3 w-3 text-muted-foreground/75 transition-transform opacity-0 group-hover:opacity-100",
                 open && "rotate-90"
               )}
             />
-            <span className="text-[10px] font-medium uppercase tracking-widest font-mono text-muted-foreground/60">
+            <span className="text-xs font-medium text-muted-foreground/75">
               Projects
             </span>
           </CollapsibleTrigger>

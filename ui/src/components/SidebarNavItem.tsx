@@ -11,6 +11,7 @@ interface SidebarNavItemProps {
   className?: string;
   badge?: number;
   badgeTone?: "default" | "danger";
+  badgeVariant?: "pill" | "subtle";
   alert?: boolean;
   liveCount?: number;
 }
@@ -23,6 +24,7 @@ export function SidebarNavItem({
   className,
   badge,
   badgeTone = "default",
+  badgeVariant = "pill",
   alert = false,
   liveCount,
 }: SidebarNavItemProps) {
@@ -49,7 +51,14 @@ export function SidebarNavItem({
           <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-red-500 shadow-[0_0_0_2px_hsl(var(--background))]" />
         )}
       </span>
-      <span className="flex-1 truncate">{label}</span>
+      <span className="flex min-w-0 flex-1 items-center gap-1.5">
+        <span className="truncate">{label}</span>
+        {badgeVariant === "subtle" && badge != null && badge > 0 && (
+          <span className="inline-flex h-4 min-w-4 shrink-0 items-center justify-center rounded-full border border-border/60 bg-muted/30 px-1 text-[10px] font-medium leading-none text-muted-foreground/80">
+            {badge}
+          </span>
+        )}
+      </span>
       {liveCount != null && liveCount > 0 && (
         <span className="ml-auto flex items-center gap-1.5">
           <span className="relative flex h-2 w-2">
@@ -59,7 +68,7 @@ export function SidebarNavItem({
           <span className="text-[11px] font-medium text-blue-600 dark:text-blue-400">{liveCount} live</span>
         </span>
       )}
-      {badge != null && badge > 0 && (
+      {badgeVariant === "pill" && badge != null && badge > 0 && (
         <span
           className={cn(
             "ml-auto rounded-full px-1.5 py-0.5 text-xs leading-none",

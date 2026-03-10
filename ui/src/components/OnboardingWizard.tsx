@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import type { AdapterEnvironmentTestResult } from "@paperclipai/shared";
+import type { AdapterEnvironmentTestResult } from "@yawnlessai/shared";
 import { useDialog } from "../context/DialogContext";
 import { useCompany } from "../context/CompanyContext";
 import { companiesApi } from "../api/companies";
@@ -23,8 +23,8 @@ import { defaultCreateValues } from "./agent-config-defaults";
 import {
   DEFAULT_CODEX_LOCAL_BYPASS_APPROVALS_AND_SANDBOX,
   DEFAULT_CODEX_LOCAL_MODEL
-} from "@paperclipai/adapter-codex-local";
-import { DEFAULT_CURSOR_LOCAL_MODEL } from "@paperclipai/adapter-cursor-local";
+} from "@yawnlessai/adapter-codex-local";
+import { DEFAULT_CURSOR_LOCAL_MODEL } from "@yawnlessai/adapter-cursor-local";
 import { AsciiArtAnimation } from "./AsciiArtAnimation";
 import { ChoosePathButton } from "./PathInstructionsModal";
 import { HintIcon } from "./agent-config-primitives";
@@ -44,7 +44,8 @@ import {
   Loader2,
   FolderOpen,
   ChevronDown,
-  X
+  X,
+  Target
 } from "lucide-react";
 
 type Step = 1 | 2 | 3 | 4;
@@ -58,7 +59,7 @@ type AdapterType =
   | "http"
   | "openclaw_gateway";
 
-const DEFAULT_TASK_DESCRIPTION = `Setup yourself as the CEO. Use the ceo persona found here: [https://github.com/paperclipai/companies/blob/main/default/ceo/AGENTS.md](https://github.com/paperclipai/companies/blob/main/default/ceo/AGENTS.md)
+const DEFAULT_TASK_DESCRIPTION = `Setup yourself as the CEO. Use the ceo persona found here: [https://github.com/yawnlessai/companies/blob/main/default/ceo/AGENTS.md](https://github.com/yawnlessai/companies/blob/main/default/ceo/AGENTS.md)
 
 Ensure you have a folder agents/ceo and then download this AGENTS.md as well as the sibling HEARTBEAT.md, SOUL.md, and TOOLS.md. and set that AGENTS.md as the path to your agents instruction file
 
@@ -82,6 +83,7 @@ export function OnboardingWizard() {
   // Step 1
   const [companyName, setCompanyName] = useState("");
   const [companyGoal, setCompanyGoal] = useState("");
+  const [goalsInfoOpen, setGoalsInfoOpen] = useState(false);
 
   // Step 2
   const [agentName, setAgentName] = useState("CEO");
@@ -595,9 +597,18 @@ export function OnboardingWizard() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">
-                      Mission / goal (optional)
-                    </label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs text-muted-foreground">
+                        Mission / goal (optional)
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setGoalsInfoOpen(true)}
+                        className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors cursor-pointer"
+                      >
+                        What are Goals?
+                      </button>
+                    </div>
                     <textarea
                       className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50 resize-none min-h-[60px]"
                       placeholder="What is this company trying to achieve?"
@@ -605,6 +616,48 @@ export function OnboardingWizard() {
                       onChange={(e) => setCompanyGoal(e.target.value)}
                     />
                   </div>
+
+                  {goalsInfoOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+                      <div className="bg-card border border-border rounded-lg shadow-sm w-full max-w-md mx-4 p-5 space-y-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-center gap-2">
+                            <Target className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                            <h3 className="text-sm font-semibold">What are Goals?</h3>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setGoalsInfoOpen(false)}
+                            className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Goals define the <span className="text-foreground font-medium">"why"</span> behind all work in your company. They form a hierarchy from high-level strategy down to individual tasks.
+                        </p>
+                        <div className="space-y-2">
+                          {[
+                            { level: "Company", desc: "Top-level strategic objective (e.g. Launch MVP by Q1)" },
+                            { level: "Team", desc: "Breaks down company goals into team-specific targets" },
+                            { level: "Agent", desc: "Individual agent missions aligned to team goals" },
+                            { level: "Task", desc: "Concrete work items that serve the goal above them" },
+                          ].map(({ level, desc }) => (
+                            <div key={level} className="flex gap-2.5">
+                              <span className="text-xs font-medium text-muted-foreground w-14 shrink-0 pt-0.5">{level}</span>
+                              <span className="text-xs text-muted-foreground">{desc}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <p className="text-xs text-muted-foreground border-t border-border pt-3">
+                          Agents use Goals to understand priorities and make better decisions. Every task traces back to the company goal.
+                        </p>
+                        <Button size="sm" variant="outline" className="w-full cursor-pointer" onClick={() => setGoalsInfoOpen(false)}>
+                          Got it
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -741,7 +794,7 @@ export function OnboardingWizard() {
                           <label className="text-xs text-muted-foreground">
                             Working directory
                           </label>
-                          <HintIcon text="Paperclip works best if you create a new folder for your agents to keep their memories and stay organized. Create a new folder and put the path here." />
+                          <HintIcon text="Yawnless.ai works best if you create a new folder for your agents to keep their memories and stay organized. Create a new folder and put the path here." />
                         </div>
                         <div className="flex items-center gap-2 rounded-md border border-border px-2.5 py-1.5">
                           <FolderOpen className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
