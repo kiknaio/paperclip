@@ -19,7 +19,7 @@ import {
   companies,
   companyMemberships,
   instanceUserRoles,
-} from "@paperclipai/db";
+} from "@yawnlessai/db";
 import detectPort from "detect-port";
 import { createApp } from "./app.js";
 import { loadConfig } from "./config.js";
@@ -68,14 +68,14 @@ export interface StartedServer {
 
 export async function startServer(): Promise<StartedServer> {
   const config = loadConfig();
-  if (process.env.PAPERCLIP_SECRETS_PROVIDER === undefined) {
-    process.env.PAPERCLIP_SECRETS_PROVIDER = config.secretsProvider;
+  if (process.env.YAWNLESS_SECRETS_PROVIDER === undefined) {
+    process.env.YAWNLESS_SECRETS_PROVIDER = config.secretsProvider;
   }
-  if (process.env.PAPERCLIP_SECRETS_STRICT_MODE === undefined) {
-    process.env.PAPERCLIP_SECRETS_STRICT_MODE = config.secretsStrictMode ? "true" : "false";
+  if (process.env.YAWNLESS_SECRETS_STRICT_MODE === undefined) {
+    process.env.YAWNLESS_SECRETS_STRICT_MODE = config.secretsStrictMode ? "true" : "false";
   }
-  if (process.env.PAPERCLIP_SECRETS_MASTER_KEY_FILE === undefined) {
-    process.env.PAPERCLIP_SECRETS_MASTER_KEY_FILE = config.secretsMasterKeyFilePath;
+  if (process.env.YAWNLESS_SECRETS_MASTER_KEY_FILE === undefined) {
+    process.env.YAWNLESS_SECRETS_MASTER_KEY_FILE = config.secretsMasterKeyFilePath;
   }
   
   type MigrationSummary =
@@ -93,8 +93,8 @@ export async function startServer(): Promise<StartedServer> {
   }
   
   async function promptApplyMigrations(migrations: string[]): Promise<boolean> {
-    if (process.env.PAPERCLIP_MIGRATION_PROMPT === "never") return false;
-    if (process.env.PAPERCLIP_MIGRATION_AUTO_APPLY === "true") return true;
+    if (process.env.YAWNLESS_MIGRATION_PROMPT === "never") return false;
+    if (process.env.YAWNLESS_MIGRATION_AUTO_APPLY === "true") return true;
     if (!stdin.isTTY || !stdout.isTTY) return true;
   
     const prompt = createInterface({ input: stdin, output: stdout });
@@ -170,7 +170,7 @@ export async function startServer(): Promise<StartedServer> {
   }
   
   const LOCAL_BOARD_USER_ID = "local-board";
-  const LOCAL_BOARD_USER_EMAIL = "local@paperclip.local";
+  const LOCAL_BOARD_USER_EMAIL = "local@yawnless.local";
   const LOCAL_BOARD_USER_NAME = "Board";
   
   async function ensureLocalTrustedBoardPrincipal(db: any): Promise<void> {
@@ -233,6 +233,10 @@ export async function startServer(): Promise<StartedServer> {
   let embeddedPostgres: EmbeddedPostgresInstance | null = null;
   let embeddedPostgresStartedByThisProcess = false;
   let migrationSummary: MigrationSummary = "skipped";
+  const embeddedDbUser = process.env.YAWNLESS_DB_USER?.trim() || process.env.PAPERCLIP_DB_USER?.trim() || "paperclip";
+  const embeddedDbPassword =
+    process.env.YAWNLESS_DB_PASSWORD?.trim() || process.env.PAPERCLIP_DB_PASSWORD?.trim() || "paperclip";
+  const embeddedDbName = process.env.YAWNLESS_DB_NAME?.trim() || process.env.PAPERCLIP_DB_NAME?.trim() || "paperclip";
   let activeDatabaseConnectionString: string;
   let startupDbInfo:
     | { mode: "external-postgres"; connectionString: string }
@@ -261,7 +265,7 @@ export async function startServer(): Promise<StartedServer> {
     let port = configuredPort;
     const embeddedPostgresLogBuffer: string[] = [];
     const EMBEDDED_POSTGRES_LOG_BUFFER_LIMIT = 120;
-    const verboseEmbeddedPostgresLogs = process.env.PAPERCLIP_EMBEDDED_POSTGRES_VERBOSE === "true";
+    const verboseEmbeddedPostgresLogs = process.env.YAWNLESS_EMBEDDED_POSTGRES_VERBOSE === "true";
     const appendEmbeddedPostgresLog = (message: unknown) => {
       const text = typeof message === "string" ? message : message instanceof Error ? message.message : String(message ?? "");
       for (const lineRaw of text.split(/\r?\n/)) {
@@ -330,8 +334,8 @@ export async function startServer(): Promise<StartedServer> {
       logger.info(`Using embedded PostgreSQL because no DATABASE_URL set (dataDir=${dataDir}, port=${port})`);
       embeddedPostgres = new EmbeddedPostgres({
         databaseDir: dataDir,
-        user: "paperclip",
-        password: "paperclip",
+        user: embeddedDbUser,
+        password: embeddedDbPassword,
         port,
         persistent: true,
         onLog: appendEmbeddedPostgresLog,
@@ -362,13 +366,13 @@ export async function startServer(): Promise<StartedServer> {
       embeddedPostgresStartedByThisProcess = true;
     }
   
-    const embeddedAdminConnectionString = `postgres://paperclip:paperclip@127.0.0.1:${port}/postgres`;
-    const dbStatus = await ensurePostgresDatabase(embeddedAdminConnectionString, "paperclip");
+    const embeddedAdminConnectionString = `postgres://${embeddedDbUser}:${embeddedDbPassword}@127.0.0.1:${port}/postgres`;
+    const dbStatus = await ensurePostgresDatabase(embeddedAdminConnectionString, embeddedDbName);
     if (dbStatus === "created") {
-      logger.info("Created embedded PostgreSQL database: paperclip");
+      logger.info(`Created embedded PostgreSQL database: ${embeddedDbName}`);
     }
-  
-    const embeddedConnectionString = `postgres://paperclip:paperclip@127.0.0.1:${port}/paperclip`;
+
+    const embeddedConnectionString = `postgres://${embeddedDbUser}:${embeddedDbPassword}@127.0.0.1:${port}/${embeddedDbName}`;
     const shouldAutoApplyFirstRunMigrations = !clusterAlreadyInitialized || dbStatus === "created";
     if (shouldAutoApplyFirstRunMigrations) {
       logger.info("Detected first-run embedded PostgreSQL setup; applying pending migrations automatically");
@@ -428,10 +432,10 @@ export async function startServer(): Promise<StartedServer> {
       resolveBetterAuthSessionFromHeaders,
     } = await import("./auth/better-auth.js");
     const betterAuthSecret =
-      process.env.BETTER_AUTH_SECRET?.trim() ?? process.env.PAPERCLIP_AGENT_JWT_SECRET?.trim();
+      process.env.BETTER_AUTH_SECRET?.trim() ?? process.env.YAWNLESS_AGENT_JWT_SECRET?.trim();
     if (!betterAuthSecret) {
       throw new Error(
-        "authenticated mode requires BETTER_AUTH_SECRET (or PAPERCLIP_AGENT_JWT_SECRET) to be set",
+        "authenticated mode requires BETTER_AUTH_SECRET (or YAWNLESS_AGENT_JWT_SECRET) to be set",
       );
     }
     const derivedTrustedOrigins = deriveAuthTrustedOrigins(config);
@@ -486,9 +490,9 @@ export async function startServer(): Promise<StartedServer> {
     runtimeListenHost === "0.0.0.0" || runtimeListenHost === "::"
       ? "localhost"
       : runtimeListenHost;
-  process.env.PAPERCLIP_LISTEN_HOST = runtimeListenHost;
-  process.env.PAPERCLIP_LISTEN_PORT = String(listenPort);
-  process.env.PAPERCLIP_API_URL = `http://${runtimeApiHost}:${listenPort}`;
+  process.env.YAWNLESS_LISTEN_HOST = runtimeListenHost;
+  process.env.YAWNLESS_LISTEN_PORT = String(listenPort);
+  process.env.YAWNLESS_API_URL = `http://${runtimeApiHost}:${listenPort}`;
   
   setupLiveEventsWebSocketServer(server, db as any, {
     deploymentMode: config.deploymentMode,
@@ -540,7 +544,7 @@ export async function startServer(): Promise<StartedServer> {
           connectionString: activeDatabaseConnectionString,
           backupDir: config.databaseBackupDir,
           retentionDays: config.databaseBackupRetentionDays,
-          filenamePrefix: "paperclip",
+          filenamePrefix: "yawnless",
         });
         logger.info(
           {
@@ -582,7 +586,7 @@ export async function startServer(): Promise<StartedServer> {
     server.listen(listenPort, config.host, () => {
       server.off("error", onError);
       logger.info(`Server listening on ${config.host}:${listenPort}`);
-      if (process.env.PAPERCLIP_OPEN_ON_LISTEN === "true") {
+      if (process.env.YAWNLESS_OPEN_ON_LISTEN === "true") {
         const openHost = config.host === "0.0.0.0" || config.host === "::" ? "127.0.0.1" : config.host;
         const url = `http://${openHost}:${listenPort}`;
         void import("open")
@@ -656,7 +660,7 @@ export async function startServer(): Promise<StartedServer> {
     server,
     host: config.host,
     listenPort,
-    apiUrl: process.env.PAPERCLIP_API_URL ?? `http://${runtimeApiHost}:${listenPort}`,
+    apiUrl: process.env.YAWNLESS_API_URL ?? `http://${runtimeApiHost}:${listenPort}`,
     databaseUrl: activeDatabaseConnectionString,
   };
 }
@@ -673,7 +677,7 @@ function isMainModule(metaUrl: string): boolean {
 
 if (isMainModule(import.meta.url)) {
   void startServer().catch((err) => {
-    logger.error({ err }, "Paperclip server failed to start");
+    logger.error({ err }, "Yawnless.ai server failed to start");
     process.exit(1);
   });
 }

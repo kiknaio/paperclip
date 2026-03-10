@@ -2,7 +2,7 @@ import { createHash, randomBytes } from "node:crypto";
 import * as p from "@clack/prompts";
 import pc from "picocolors";
 import { and, eq, gt, isNull } from "drizzle-orm";
-import { createDb, instanceUserRoles, invites } from "@paperclipai/db";
+import { createDb, instanceUserRoles, invites } from "@yawnlessai/db";
 import { loadPaperclipEnvFile } from "../config/env.js";
 import { readConfig, resolveConfigPath } from "../config/store.js";
 
@@ -23,7 +23,12 @@ function resolveDbUrl(configPath?: string, explicitDbUrl?: string) {
   }
   if (config?.database.mode === "embedded-postgres") {
     const port = config.database.embeddedPostgresPort ?? 54329;
-    return `postgres://paperclip:paperclip@127.0.0.1:${port}/paperclip`;
+    const user = process.env.YAWNLESS_DB_USER?.trim() || process.env.PAPERCLIP_DB_USER?.trim() || "paperclip";
+    const password =
+      process.env.YAWNLESS_DB_PASSWORD?.trim() || process.env.PAPERCLIP_DB_PASSWORD?.trim() || "paperclip";
+    const database =
+      process.env.YAWNLESS_DB_NAME?.trim() || process.env.PAPERCLIP_DB_NAME?.trim() || "paperclip";
+    return `postgres://${user}:${password}@127.0.0.1:${port}/${database}`;
   }
   return null;
 }
@@ -31,8 +36,8 @@ function resolveDbUrl(configPath?: string, explicitDbUrl?: string) {
 function resolveBaseUrl(configPath?: string, explicitBaseUrl?: string) {
   if (explicitBaseUrl) return explicitBaseUrl.replace(/\/+$/, "");
   const fromEnv =
-    process.env.PAPERCLIP_PUBLIC_URL ??
-    process.env.PAPERCLIP_AUTH_PUBLIC_BASE_URL ??
+    process.env.YAWNLESS_PUBLIC_URL ??
+    process.env.YAWNLESS_AUTH_PUBLIC_BASE_URL ??
     process.env.BETTER_AUTH_URL ??
     process.env.BETTER_AUTH_BASE_URL;
   if (fromEnv?.trim()) return fromEnv.trim().replace(/\/+$/, "");
@@ -57,7 +62,7 @@ export async function bootstrapCeoInvite(opts: {
   loadPaperclipEnvFile(configPath);
   const config = readConfig(configPath);
   if (!config) {
-    p.log.error(`No config found at ${configPath}. Run ${pc.cyan("paperclip onboard")} first.`);
+    p.log.error(`No config found at ${configPath}. Run ${pc.cyan("yawnless onboard")} first.`);
     return;
   }
 
@@ -126,7 +131,7 @@ export async function bootstrapCeoInvite(opts: {
     p.log.message(`Expires: ${pc.dim(created.expiresAt.toISOString())}`);
   } catch (err) {
     p.log.error(`Could not create bootstrap invite: ${err instanceof Error ? err.message : String(err)}`);
-    p.log.info("If using embedded-postgres, start the Paperclip server and run this command again.");
+    p.log.info("If using embedded-postgres, start the Yawnless.ai server and run this command again.");
   } finally {
     await closableDb.$client?.end?.({ timeout: 5 }).catch(() => undefined);
   }

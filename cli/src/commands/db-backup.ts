@@ -1,7 +1,7 @@
 import path from "node:path";
 import * as p from "@clack/prompts";
 import pc from "picocolors";
-import { formatDatabaseBackupResult, runDatabaseBackup } from "@paperclipai/db";
+import { formatDatabaseBackupResult, runDatabaseBackup } from "@yawnlessai/db";
 import {
   expandHomePrefix,
   resolveDefaultBackupDir,
@@ -28,8 +28,13 @@ function resolveConnectionString(configPath?: string): { value: string; source: 
   }
 
   const port = config?.database.embeddedPostgresPort ?? 54329;
+  const user = process.env.YAWNLESS_DB_USER?.trim() || process.env.PAPERCLIP_DB_USER?.trim() || "paperclip";
+  const password =
+    process.env.YAWNLESS_DB_PASSWORD?.trim() || process.env.PAPERCLIP_DB_PASSWORD?.trim() || "paperclip";
+  const database =
+    process.env.YAWNLESS_DB_NAME?.trim() || process.env.PAPERCLIP_DB_NAME?.trim() || "paperclip";
   return {
-    value: `postgres://paperclip:paperclip@127.0.0.1:${port}/paperclip`,
+    value: `postgres://${user}:${password}@127.0.0.1:${port}/${database}`,
     source: `embedded-postgres@${port}`,
   };
 }
@@ -48,7 +53,7 @@ function resolveBackupDir(raw: string): string {
 
 export async function dbBackupCommand(opts: DbBackupOptions): Promise<void> {
   printPaperclipCliBanner();
-  p.intro(pc.bgCyan(pc.black(" paperclip db:backup ")));
+  p.intro(pc.bgCyan(pc.black(" yawnless db:backup ")));
 
   const configPath = resolveConfigPath(opts.config);
   const config = readConfig(opts.config);

@@ -13,10 +13,10 @@ function findConfigFileFromAncestors(startDir: string): string | null {
   let currentDir = absoluteStartDir;
 
   while (true) {
-    const candidate = path.resolve(currentDir, ".paperclip", DEFAULT_CONFIG_BASENAME);
-    if (fs.existsSync(candidate)) {
-      return candidate;
-    }
+    const legacyCandidate = path.resolve(currentDir, ".paperclip", DEFAULT_CONFIG_BASENAME);
+    if (fs.existsSync(legacyCandidate)) return legacyCandidate;
+    const brandedCandidate = path.resolve(currentDir, ".yawnless", DEFAULT_CONFIG_BASENAME);
+    if (fs.existsSync(brandedCandidate)) return brandedCandidate;
 
     const nextDir = path.resolve(currentDir, "..");
     if (nextDir === currentDir) break;
@@ -28,6 +28,7 @@ function findConfigFileFromAncestors(startDir: string): string | null {
 
 export function resolveConfigPath(overridePath?: string): string {
   if (overridePath) return path.resolve(overridePath);
+  if (process.env.YAWNLESS_CONFIG) return path.resolve(process.env.YAWNLESS_CONFIG);
   if (process.env.PAPERCLIP_CONFIG) return path.resolve(process.env.PAPERCLIP_CONFIG);
   return findConfigFileFromAncestors(process.cwd()) ?? resolveDefaultConfigPath(resolvePaperclipInstanceId());
 }

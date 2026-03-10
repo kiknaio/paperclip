@@ -59,7 +59,7 @@ export async function runDatabaseBackup(opts: RunDatabaseBackupOptions): Promise
     const lines: string[] = [];
     const emit = (line: string) => lines.push(line);
 
-    emit("-- Paperclip database backup");
+    emit("-- Yawnless.ai database backup");
     emit(`-- Created: ${new Date().toISOString()}`);
     emit("");
     emit("BEGIN;");

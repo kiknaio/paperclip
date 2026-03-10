@@ -22,15 +22,21 @@ function expandHomePrefix(value: string): string {
 }
 
 function resolvePaperclipHomeDir(): string {
-  const envHome = process.env.PAPERCLIP_HOME?.trim();
+  const envHome = process.env.YAWNLESS_HOME?.trim() || process.env.PAPERCLIP_HOME?.trim();
   if (envHome) return path.resolve(expandHomePrefix(envHome));
-  return path.resolve(os.homedir(), ".paperclip");
+
+  const legacyHome = path.resolve(os.homedir(), ".paperclip");
+  if (existsSync(legacyHome)) return legacyHome;
+  return path.resolve(os.homedir(), ".yawnless");
 }
 
 function resolvePaperclipInstanceId(): string {
-  const raw = process.env.PAPERCLIP_INSTANCE_ID?.trim() || "default";
+  const raw =
+    process.env.YAWNLESS_INSTANCE_ID?.trim() ||
+    process.env.PAPERCLIP_INSTANCE_ID?.trim() ||
+    "default";
   if (!/^[a-zA-Z0-9_-]+$/.test(raw)) {
-    throw new Error(`Invalid PAPERCLIP_INSTANCE_ID '${raw}'.`);
+    throw new Error(`Invalid YAWNLESS_INSTANCE_ID '${raw}'.`);
   }
   return raw;
 }
@@ -69,7 +75,12 @@ function resolveConnectionString(config: PartialConfig | null): string {
   }
 
   const port = resolveEmbeddedPort(config);
-  return `postgres://paperclip:paperclip@127.0.0.1:${port}/paperclip`;
+  const user = process.env.YAWNLESS_DB_USER?.trim() || process.env.PAPERCLIP_DB_USER?.trim() || "paperclip";
+  const password =
+    process.env.YAWNLESS_DB_PASSWORD?.trim() || process.env.PAPERCLIP_DB_PASSWORD?.trim() || "paperclip";
+  const database =
+    process.env.YAWNLESS_DB_NAME?.trim() || process.env.PAPERCLIP_DB_NAME?.trim() || "paperclip";
+  return `postgres://${user}:${password}@127.0.0.1:${port}/${database}`;
 }
 
 function resolveDefaultBackupDir(): string {
